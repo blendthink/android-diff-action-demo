@@ -9,8 +9,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - uses: blendthink/android-diff-action@main
-        id: android-diff
+      - id: android-diff
+        uses: blendthink/android-diff-action@main
 
       - uses: peter-evans/find-comment@v1
         id: find-comment
