@@ -19,7 +19,7 @@ jobs:
           body-includes: Android Diff
 
       - uses: peter-evans/create-or-update-comment@v1
-        if: ${{ steps.dependency-diff.outputs.text-diff != null || steps.find-comment.outputs.comment-id != null }}
+        if: ${{ steps.android-diff.outputs.size-diff != null || steps.find-comment.outputs.comment-id != null }}
         with:
           body: |
             ## Android Diff
