@@ -8,4 +8,40 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
+
       - uses: blendthink/android-diff-action@main
+        id: android-diff
+
+      - uses: peter-evans/find-comment@v1
+        id: find-comment
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body-includes: Android Diff
+
+      - uses: peter-evans/create-or-update-comment@v1
+        if: ${{ steps.dependency-diff.outputs.text-diff != null || steps.find-comment.outputs.comment-id != null }}
+        with:
+          body: |
+            ## Android Diff
+
+            ### Size
+
+            ```diff
+            ${{ steps.android-diff.outputs.size-diff }}
+            ```
+
+            ### Permissions
+
+            ```diff
+            ${{ steps.android-diff.outputs.permissions-diff }}
+            ```
+
+            ### Dependencies
+
+            ```diff
+            ${{ steps.android-diff.outputs.dependencies-diff }}
+            ```
+          edit-mode: replace
+          comment-id: ${{ steps.find-comment.outputs.comment-id }}
+          issue-number: ${{ github.event.pull_request.number }}
+          token: ${{ secrets.ANDROID_CI_GITHUB_TOKEN }}
