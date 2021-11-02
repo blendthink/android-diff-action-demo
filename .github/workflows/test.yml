@@ -12,37 +12,4 @@ jobs:
           fetch-depth: 0
 
       - id: android-diff
-        uses: blendthink/android-diff-action@main
-
-      - uses: peter-evans/find-comment@v1
-        id: find-comment
-        with:
-          issue-number: ${{ github.event.pull_request.number }}
-          body-includes: Android Diff
-
-      - uses: peter-evans/create-or-update-comment@v1
-        with:
-          body: |
-            ## Android Diff
-
-            ### Size
-
-            ```diff
-            ${{ steps.android-diff.outputs.size-diff }}
-            ```
-
-            ### Permissions
-
-            ```diff
-            ${{ steps.android-diff.outputs.permissions-diff }}
-            ```
-
-            ### Dependencies
-
-            ```diff
-            ${{ steps.android-diff.outputs.dependencies-diff }}
-            ```
-          edit-mode: replace
-          comment-id: ${{ steps.find-comment.outputs.comment-id }}
-          issue-number: ${{ github.event.pull_request.number }}
-          token: ${{ secrets.GITHUB_TOKEN }}
+        uses: blendthink/android-diff-action@dev
