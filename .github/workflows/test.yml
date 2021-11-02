@@ -11,5 +11,4 @@ jobs:
         with:
           fetch-depth: 0
 
-      - id: android-diff
-        uses: blendthink/android-diff-action@dev
+      - uses: blendthink/android-diff-action@dev
