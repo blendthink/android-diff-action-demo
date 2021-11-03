@@ -11,11 +11,22 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: android-diff
+      - id: android-diff
         uses: blendthink/android-diff-action@dev
 
-      - name: Archive Android Diff
-        uses: actions/upload-artifact@v2
+      - uses: peter-evans/find-comment@v1
+        id: find-comment
         with:
-          name: android-diff
-          path: ${{ github.action_path }}/diff.html
+          issue-number: ${{ github.event.pull_request.number }}
+          body-includes: Android Diff
+
+      - uses: peter-evans/create-or-update-comment@v1
+        with:
+          body: |
+            ## Android Diff
+
+            ${{ steps.android-diff.outputs.diff }}
+          edit-mode: replace
+          comment-id: ${{ steps.find-comment.outputs.comment-id }}
+          issue-number: ${{ github.event.pull_request.number }}
+          token: ${{ secrets.GITHUB_TOKEN }}
