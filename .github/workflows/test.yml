@@ -38,7 +38,7 @@ jobs:
           body-includes: Android Diff
 
       - uses: peter-evans/create-or-update-comment@v1
-        if: ${{ steps.android-diff.outputs.diff != null || steps.find-comment.outputs.comment-id != null }}
+        if: ${{ steps.android-diff.outputs.diff != null && steps.find-comment.outputs.comment-id != null }}
         with:
           body: ${{ steps.android-diff.outputs.diff }}
           edit-mode: replace
