@@ -11,5 +11,40 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: android-diff
-        uses: blendthink/android-diff-action@dev
+      - uses: actions/setup-java@v2
+        with:
+          distribution: 'zulu'
+          java-version: '11'
+
+      - id: apk-path
+        run: |
+          git checkout --force ${{ github.event.repository.default_branch }}
+          ./gradlew assembleRelease
+          basePath=$(find **/build/outputs/apk -name '*.apk' -type f | head -1)
+          echo "::set-output name=base::$basePath"
+
+          git checkout --force ${{ github.sha }}
+          ./gradlew assembleRelease
+          targetPath=$(find **/build/outputs/apk -name '*.apk' -type f | head -1)
+          echo "::set-output name=base::$targetPath"
+
+      - id: android-diff
+        uses: blendthink/android-diff-action@main
+        with:
+          base-apk-path: ${{ steps.apk-path.outputs.base }}
+          target-apk-path: ${{ steps.apk-path.outputs.target }}
+
+      - id: find-comment
+        uses: peter-evans/find-comment@v1
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body-includes: Android Diff
+
+      - uses: peter-evans/create-or-update-comment@v1
+        if: ${{ steps.android-diff.outputs.diff != null || steps.find-comment.outputs.comment-id != null }}
+        with:
+          body: ${{ steps.android-diff.outputs.diff }}
+          edit-mode: replace
+          comment-id: ${{ steps.find-comment.outputs.comment-id }}
+          issue-number: ${{ github.event.pull_request.number }}
+          token: ${{ secrets.GITHUB_TOKEN }}
