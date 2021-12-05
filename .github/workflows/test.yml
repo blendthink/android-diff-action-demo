@@ -54,14 +54,22 @@ jobs:
           target-apk-path: ${{ github.workspace }}/apk/target.apk
 
       - id: find-comment
-        uses: peter-evans/find-comment@v1
+        uses: sandeshjangam/comment-actions@v1
         with:
-          issue-number: ${{ github.event.pull_request.number }}
-          body-includes: Android Diff
+          type: "find"
+          search_term: "Android Diff"
+          number: ${{ github.event.pull_request.number }}
 
-      - uses: peter-evans/create-or-update-comment@v1
-        if: ${{ steps.android-diff.outputs.diff != null && steps.find-comment.outputs.comment-id != null }}
+      - uses: sandeshjangam/comment-actions@v1
+        if: ${{ steps.find-comment.outputs.comment_id != '' }}
         with:
+          type: "delete"
+          comment_id: ${{ steps.find-comment.outputs.comment_id }}
+
+      - uses: sandeshjangam/comment-actions@v1
+        with:
+          type: "create"
+          number: ${{ github.event.pull_request.number }}
           body: |
             ### Android Diff
 
@@ -73,8 +81,3 @@ jobs:
             ${{ steps.android-diff.outputs.size-detail }}
 
             </details>
-
-          edit-mode: replace
-          comment-id: ${{ steps.find-comment.outputs.comment-id }}
-          issue-number: ${{ github.event.pull_request.number }}
-          token: ${{ secrets.GITHUB_TOKEN }}
