@@ -3,8 +3,77 @@ name: Test
 on:
   pull_request:
 
+env:
+  ASSEMBLE_TASK: assembleRelease
+
 jobs:
-  build:
+
+  build-main:
     runs-on: ubuntu-20.04
     steps:
-      - uses: blendthink/android-diff-action@main
+      - uses: actions/checkout@v2
+        with:
+          ref: main
+      - run: |
+          ./gradlew $ASSEMBLE_TASK
+          path=$(find **/build/outputs/apk -name '*.apk' -type f | head -1)
+          mv $path base.apk
+      - uses: actions/upload-artifact@v2
+        with:
+          name: apk
+          path: base.apk
+
+  build-pr:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - run: |
+          ./gradlew $ASSEMBLE_TASK
+          path=$(find **/build/outputs/apk -name '*.apk' -type f | head -1)
+          mv $path target.apk
+      - uses: actions/upload-artifact@v2
+        with:
+          name: apk
+          path: target.apk
+
+  diff:
+    runs-on: ubuntu-20.04
+    needs: [ build-main, build-pr ]
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/download-artifact@v2
+        with:
+          name: apk
+
+      - id: android-diff
+        uses: blendthink/android-diff-action@main
+
+      - id: find-comment
+        uses: sandeshjangam/comment-actions@v1
+        with:
+          type: "find"
+          search_term: "Android Diff"
+          number: ${{ github.event.pull_request.number }}
+
+      - uses: sandeshjangam/comment-actions@v1
+        if: ${{ steps.find-comment.outputs.comment_id != '' }}
+        with:
+          type: "delete"
+          comment_id: ${{ steps.find-comment.outputs.comment_id }}
+
+      - uses: sandeshjangam/comment-actions@v1
+        with:
+          type: "create"
+          number: ${{ github.event.pull_request.number }}
+          body: |
+            ### Android Diff
+
+            ${{ steps.android-diff.outputs.diff }}
+
+            <details>
+            <summary>Size Detail</summary>
+
+            ${{ steps.android-diff.outputs.size-detail }}
+
+            </details>
