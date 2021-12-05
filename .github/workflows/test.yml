@@ -50,6 +50,10 @@ jobs:
       - name: Display structure of downloaded files
         run: ls -R
 
+      - run: |
+          chmod +r apk/base.apk
+          chmod +r apk/target.apk
+
       - id: android-diff
         uses: blendthink/android-diff-action@main
         with:
