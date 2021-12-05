@@ -47,6 +47,9 @@ jobs:
           name: apk
           path: apk
 
+      - name: Display structure of downloaded files
+        run: ls -R
+
       - id: android-diff
         uses: blendthink/android-diff-action@main
         with:
