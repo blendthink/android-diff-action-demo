@@ -53,8 +53,8 @@ jobs:
       - id: android-diff
         uses: blendthink/android-diff-action@main
         with:
-          base-apk-path: apk/base.apk
-          target-apk-path: apk/target.apk
+          base-apk-path: ${{ github.workspace }}/apk/base.apk
+          target-apk-path: ${{ github.workspace }}/apk/target.apk
 
       - id: find-comment
         uses: peter-evans/find-comment@v1
@@ -63,7 +63,7 @@ jobs:
           body-includes: Android Diff
 
       - uses: peter-evans/create-or-update-comment@v1
-        if: ${{ steps.android-diff.outputs.diff != null || steps.find-comment.outputs.comment-id != null }}
+        if: ${{ steps.android-diff.outputs.diff != null && steps.find-comment.outputs.comment-id != null }}
         with:
           body: ${{ steps.android-diff.outputs.diff }}
           edit-mode: replace
