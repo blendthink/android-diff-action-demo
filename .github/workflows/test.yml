@@ -45,13 +45,9 @@ jobs:
       - uses: actions/download-artifact@v2
         with:
           name: apk
-          path: apk
 
       - id: android-diff
         uses: blendthink/android-diff-action@main
-        with:
-          base-apk-path: ${{ github.workspace }}/apk/base.apk
-          target-apk-path: ${{ github.workspace }}/apk/target.apk
 
       - id: find-comment
         uses: sandeshjangam/comment-actions@v1
