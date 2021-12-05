@@ -18,7 +18,6 @@ jobs:
           ./gradlew $ASSEMBLE_TASK
           path=$(find **/build/outputs/apk -name '*.apk' -type f | head -1)
           mv $path base.apk
-          ls -la
       - uses: actions/upload-artifact@v2
         with:
           name: apk
@@ -48,13 +47,6 @@ jobs:
           name: apk
           path: apk
 
-      - name: Display structure of downloaded files
-        run: ls -Rl
-
-      - run: |
-          chmod +r apk/base.apk
-          chmod +r apk/target.apk
-
       - id: android-diff
         uses: blendthink/android-diff-action@main
         with:
@@ -70,7 +62,18 @@ jobs:
       - uses: peter-evans/create-or-update-comment@v1
         if: ${{ steps.android-diff.outputs.diff != null && steps.find-comment.outputs.comment-id != null }}
         with:
-          body: ${{ steps.android-diff.outputs.diff }}
+          body: |
+            ### Android Diff
+
+            ${{ steps.android-diff.outputs.diff }}
+
+            <details>
+            <summary>Size Detail</summary>
+
+            ${{ steps.android-diff.outputs.size-detail }}
+
+            </details>
+
           edit-mode: replace
           comment-id: ${{ steps.find-comment.outputs.comment-id }}
           issue-number: ${{ github.event.pull_request.number }}
